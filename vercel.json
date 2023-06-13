@@ -1,5 +1,5 @@
 {
-  "redirects": [{ "source": "/", "destination": "./templates" }]
+  "redirects": [{ "source": "/", "destination": "./templates/" }]
 }
 {
   "framework": "python"
