@@ -1,127 +1,123 @@
-<!DOCTYPE html>  
-<html>  
-<head>  
-    <title>Cut List</title>  
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">  
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>  
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>  
-    <script>  
-		$(document).ready(function() {  
-			// Add row to cuts table  
-			$(document).on('click', '#addRow', function() {  
-				var newRow = '<tr><td><input type="number" class="form-control" name="length[]" placeholder="Length in mm"></td><td><input type="number" class="form-control" name="quantity[]" placeholder="Quantity"></td><td><input type="text" class="form-control" name="label[]" placeholder="Label"></td></tr>';  
-				$('#cutsTable tbody').append(newRow);  
-			});  
-	
-			// Remove row from cuts table  
-			$(document).on('click', '#removeRow', function() {  
-				if ($('#cutsTable tbody tr').length > 1) {  
-					$('#cutsTable tbody tr:last').remove();  
-				}  
-			});  
-	
-			// Send data to server  
-			$(document).on('click', '#sendButton', function() {  
-				// Disable button and change text to "Calculating"  
-				$(this).prop('disabled', true);  
-				$(this).text('Calculating...');  
-	
-				var sourceSize = parseInt($('#sourceMaterial').val());  
-				var cuts = [];  
-	
-				$('#cutsTable tbody tr').each(function() {  
-					var cut = {};  
-					cut.length = parseInt($(this).find('input[name="length[]"]').val());  
-					cut.quantity = parseInt($(this).find('input[name="quantity[]"]').val());  
-					cut.label = $(this).find('input[name="label[]"]').val();  
-					cuts.push(cut);  
-				});  
-	
-				var data = JSON.stringify({ sourceSize: sourceSize, cuts: cuts });  
-	
-				$.ajax({  
-					type: "POST",  
-					url: "/api",  
-					data: data,  
-					contentType: "application/json; charset=utf-8",  
-					dataType: "json",  
-					success: function(response) {  
-						$('#resultTable tbody').empty();
-						
-						var boardsNeeded = response.BoardsNeeded;
-						var cutsData = response.cuts;
-						
-						$('#boardsNeeded').text(boardsNeeded);
-						
-						$.each(cutsData, function(index, cut) {  
-							var newRow = '<tr><td>' + cut.board + '</td><td>' + cut.cuts.join(', ') + '</td><td>' + cut.total_length + '</td></tr>';  
-							$('#resultTable tbody').append(newRow);  
-						});  
-						
-						$('#resultDiv').show();
-						// Enable button and change text back to "Send"  
-						$('#sendButton').prop('disabled', false);  
-						$('#sendButton').text('Send');  
-					},  
-					error: function() {  
-						alert('Error sending data to server!');  
-						$('#sendButton').prop('disabled', false);  
-						$('#sendButton').text('Send');  
-					}  
-				});  
-			});  
-		});  
-	</script> 
-	
-</head>  
-<body>  
-    <div class="container">  
-        <h1>Cut List</h1>  
-        <form>  
-            <div class="form-group">  
-                <label for="sourceMaterial">Source Material Size (mm):</label>  
-                <input type="number" class="form-control" id="sourceMaterial" placeholder="Enter unique size of source material in mm">  
-            </div>  
-            <hr>  
-            <table class="table table-striped" id="cutsTable">  
-                <thead>  
-                    <tr>  
-                        <th>Length (mm)</th>  
-                        <th>Quantity</th>  
-                        <th>Label</th>  
-                    </tr>  
-                </thead>  
-                <tbody>  
-                    <tr>  
-                        <td><input type="number" class="form-control" name="length[]" placeholder="Length in mm"></td>  
-                        <td><input type="number" class="form-control" name="quantity[]" placeholder="Quantity"></td>  
-                        <td><input type="text" class="form-control" name="label[]" placeholder="Label"></td>  
-                    </tr>  
-                </tbody>  
-            </table>  
-            <button type="button" class="btn btn-success" id="addRow">Add Row</button>  
-            <button type="button" class="btn btn-danger" id="removeRow">Remove Row</button>  
-            <hr>  
-            <button type="button" class="btn btn-primary" id="sendButton">Send</button>  
-        </form>  
-        <hr>  
-        <div id="resultDiv" style="display:none;">  
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cut List</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Add row to cuts table
+            $(document).on('click', '#addRow', function() {
+                var newRow = '<tr><td><input type="number" class="form-control" name="length[]" placeholder="Length in mm"></td><td><input type="number" class="form-control" name="quantity[]" placeholder="Quantity"></td></tr>';
+                $('#cutsTable tbody').append(newRow);
+            });
+
+            // Remove row from cuts table
+            $(document).on('click', '#removeRow', function() {
+                if ($('#cutsTable tbody tr').length > 1) {
+                    $('#cutsTable tbody tr:last').remove();
+                }
+            });
+
+            // Send data to server
+            $(document).on('click', '#sendButton', function() {
+                // Disable button and change text to "Calculating"
+                $(this).prop('disabled', true);
+                $(this).text('Calculating...');
+
+                var sourceSize = parseInt($('#sourceMaterial').val());
+                var cuts = [];
+
+                $('#cutsTable tbody tr').each(function() {
+                    var cut = {};
+                    cut.length = parseInt($(this).find('input[name="length[]"]').val());
+                    cut.quantity = parseInt($(this).find('input[name="quantity[]"]').val());
+                    cuts.push(cut);
+                });
+
+                var data = JSON.stringify({ sourceSize: sourceSize, cuts: cuts });
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api",
+                    data: data,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function(response) {
+                        $('#resultTable tbody').empty();
+
+                        var boardsNeeded = response.BoardsNeeded;
+                        var cutsData = response.cuts;
+
+                        $('#boardsNeeded').text(boardsNeeded);
+
+                        $.each(cutsData, function(index, cut) {
+                            var newRow = '<tr><td>' + cut.board + '</td><td>' + cut.cuts.join(', ') + '</td><td>' + cut.total_length + '</td></tr>';
+                            $('#resultTable tbody').append(newRow);
+                        });
+
+                        $('#resultDiv').show();
+                        // Enable button and change text back to "Send"
+                        $('#sendButton').prop('disabled', false);
+                        $('#sendButton').text('Send');
+                    },
+                    error: function() {
+                        alert('Error sending data to server!');
+                        $('#sendButton').prop('disabled', false);
+                        $('#sendButton').text('Send');
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Cut List</h1>
+        <form>
+            <div class="form-group">
+                <label for="sourceMaterial">Source Material Size (mm):</label>
+                <input type="number" class="form-control" id="sourceMaterial" placeholder="Enter unique size of source material in mm">
+            </div>
+            <hr>
+            <table class="table table-striped" id="cutsTable">
+                <thead>
+                    <tr>
+                        <th>Length (mm)</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="number" class="form-control" name="length[]" placeholder="Length in mm"></td>
+                        <td><input type="number" class="form-control" name="quantity[]" placeholder="Quantity"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-success" id="addRow">Add Row</button>
+            <button type="button" class="btn btn-danger" id="removeRow">Remove Row</button>
+            <hr>
+            <button type="button" class="btn btn-primary" id="sendButton">Send</button>
+        </form>
+        <hr>
+        <div id="resultDiv" style="display:none;">
             <h2>Results:</h2>
             <p>Boards Needed: <span id="boardsNeeded"></span></p>
-            <table class="table table-striped" id="resultTable">  
-                <thead>  
-                    <tr>  
-                        <th>Board</th>  
-                        <th>Cuts</th>  
-                        <th>Total Length</th>  
-                    </tr>  
-                </thead>  
-                <tbody>  
-                </tbody>  
-            </table>  
-        </div>  
-    </div>  
-</body>  
+            <table class="table table-striped" id="resultTable">
+                <thead>
+                    <tr>
+                        <th>Board</th>
+                        <th>Cuts</th>
+                        <th>Total Length</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
 </html>
