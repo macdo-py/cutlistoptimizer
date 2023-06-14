@@ -55,7 +55,7 @@
                         $('#boardsNeeded').text(boardsNeeded);
 
                         $.each(cutsData, function(index, cut) {
-                            var newRow = '<tr><td>' + cut.board + '</td><td>' + cut.cuts.join(', ') + '</td><td>' + cut.total_length + '</td></tr>';
+                            var newRow = '<tr><td><input type="checkbox" class="form-check-input"></td><td>' + cut.board + '</td><td>' + cut.cuts.join(', ') + '</td><td>' + cut.total_length + '</td></tr>';
                             $('#resultTable tbody').append(newRow);
                         });
 
@@ -70,6 +70,15 @@
                         $('#sendButton').text('Send');
                     }
                 });
+            });
+
+            // Print result table
+            $(document).on('click', '#printButton', function() {
+                var printContents = document.getElementById("resultTable").outerHTML;
+                var originalContents = document.body.innerHTML;
+                document.body.innerHTML = printContents;
+                window.print();
+                document.body.innerHTML = originalContents;
             });
         });
     </script>
@@ -106,9 +115,11 @@
         <div id="resultDiv" style="display:none;">
             <h2>Results:</h2>
             <p>Boards Needed: <span id="boardsNeeded"></span></p>
+            <button type="button" class="btn btn-primary" id="printButton">Print Result Table</button>
             <table class="table table-striped" id="resultTable">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>Board</th>
                         <th>Cuts</th>
                         <th>Total Length</th>
